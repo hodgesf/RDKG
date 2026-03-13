@@ -15,17 +15,18 @@ also be executed manually.
 
 The build process consists of five major stages.
 
-:::
-    download
-       ↓
-    extract
-       ↓
-    convert
-       ↓
-    merge
-       ↓
-    simplify / normalize
-:::
+```
+download
+  ↓
+extract
+  ↓
+convert
+  ↓
+merge
+  ↓
+simplify / normalize
+```
+
 
 ## Download
 
