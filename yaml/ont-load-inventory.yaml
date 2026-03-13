@@ -1,0 +1,103 @@
+- # maps to CURIE prefix: BFO
+  url: http://purl.obolibrary.org/obo/bfo.owl
+  file: bfo.owl
+  download: true
+  title: Basic Formal Ontology
+
+- # maps to CURIE prefix: RO
+  url: http://purl.obolibrary.org/obo/ro.owl
+  file: ro.owl
+  download: true
+  title: Relation Ontology
+
+- # maps to CURIE prefix: GO
+  url: http://purl.obolibrary.org/obo/go/extensions/go-plus.owl
+  file: go-plus.owl
+  download: true
+  title: Gene Ontology
+
+- # maps to CURIE prefix: CHEBI
+  url: http://purl.obolibrary.org/obo/chebi.owl
+  file: chebi.owl
+  download: true
+  title: Chemical Entities of Biological Interest
+
+- url: http://purl.obolibrary.org/obo/pr.owl
+  file: pr.owl
+  download: true
+  title: Protein Ontology
+
+- url: http://purl.obolibrary.org/obo/uberon.owl
+  file: uberon.owl
+  download: true
+  title: Uber-anatomy Ontology
+
+- url: http://purl.obolibrary.org/obo/cl.owl
+  file: cl.owl
+  download: true
+  title: Cell Ontology
+
+- url: http://purl.obolibrary.org/obo/hp.owl
+  file: hp.owl
+  download: true
+  title: Human Phenotype Ontology
+
+- url: http://purl.obolibrary.org/obo/pato.owl
+  file: pato.owl
+  download: true
+  title: Phenotypic Quality Ontology
+
+- url: http://purl.obolibrary.org/obo/mondo.owl
+  file: mondo.owl
+  download: true
+  title: MONDO Disease Ontology
+
+- url: http://purl.obolibrary.org/obo/ordo.owl
+  file: ordo.owl
+  download: true
+  title: ORPHANET Rare Disease Ontology
+
+- url: http://purl.obolibrary.org/obo/ncbitaxon.owl
+  file: ncbitaxon.owl
+  download: true
+  title: NCBI Taxonomy
+
+- url: http://purl.obolibrary.org/obo/mi.owl
+  file: mi.owl
+  download: true
+  title: Molecular Interactions Controlled Vocabulary
+
+- url: http://purl.obolibrary.org/obo/ino.owl
+  file: ino.owl
+  download: true
+  title: Interaction Network Ontology
+
+- url: http://purl.obolibrary.org/obo/so.owl
+  file: so.owl
+  download: true
+  title: Sequence Ontology
+
+- url: http://purl.obolibrary.org/obo/doid.owl
+  file: doid.owl
+  download: true
+  title: Human Disease Ontology
+
+- url: http://purl.obolibrary.org/obo/eco.owl
+  file: eco.owl
+  download: true
+  title: Evidence and Conclusion Ontology
+
+- url: http://purl.obolibrary.org/obo/efo.owl
+  file: efo.owl
+  download: true
+  title: Experimental Factor Ontology
+
+- url: http://purl.obolibrary.org/obo/obi.owl
+  file: obi.owl
+  download: true
+  title: Ontology for Biomedical Investigations
+
+- url: http://purl.obolibrary.org/obo/cheminf.owl
+  file: cheminf.owl
+  download: true
+  title: Chemical Information Ontology

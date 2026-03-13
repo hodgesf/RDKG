@@ -1,0 +1,103 @@
+prefix-mappings:
+    biolink: named thing
+    CL: anatomical entity
+    DOID: disease
+    HGNC: gene
+    IAO: information content entity
+    MGI: gene
+    NCBIGene: gene
+    NCBITaxon: organism taxon
+    OMIM: phenotypic feature
+    PATO: phenotypic feature
+    PR: protein
+    RO: named thing
+    skos: named thing
+    SYMP: phenotypic feature
+    UBERON: anatomical entity
+    UBPROP: information content entity
+    UniProtKB: protein
+
+term-mappings:
+    rdfs:isDefinedBy: named thing
+    OIO:inSubset: named thing
+    OIO:ObsoleteClass: named thing
+    OIO:hasRelatedSynonym: named thing
+    OIO:hasBroadSynonym: named thing
+    OIO:hasExactSynonym: named thing
+    OIO:hasDbXref: named thing
+    OIO:hasOBOFormatVersion: named thing
+    OIO:SubsetProperty: named thing
+    OIO:shorthand: named thing
+
+    owl:topObjectProperty: information content entity
+
+    BFO:0000001: named thing
+    BFO:0000030: physical entity
+    BFO:0000040: physical entity
+    BFO:0000050: named thing
+    BFO:0000051: named thing
+    BFO:0000053: named thing
+    BFO:0000054: named thing
+    BFO:0000055: named thing
+    BFO:0000056: named thing
+    BFO:0000057: named thing
+
+    CHEBI:23367: molecular entity
+    CHEBI:24431: molecular entity
+    CHEBI:24432: biological entity
+    CHEBI:25212: small molecule
+    CHEBI:59999: small molecule
+
+    CL:0000000: anatomical entity
+
+    GO:0005575: cellular component
+    GO:0008150: biological process
+    GO:0003674: molecular activity
+
+    HP:0031797: phenotypic feature
+    HP:0012823: phenotypic feature
+    HP:0032223: phenotypic feature
+    HP:0000005: phenotypic feature
+    HP:0000118: phenotypic feature
+
+    MONDO:0000001: disease
+    MONDO:0001227: disease
+    MONDO:0020420: disease
+    MONDO:0021007: disease
+
+    NCBITaxon:1: organism taxon
+
+    NCIT:C22187: disease
+    NCIT:C16612: gene
+    NCIT:C17021: protein
+    NCIT:C21176: molecular entity
+    NCIT:C20633: pathway
+    NCIT:C17828: biological process
+    NCIT:C12219: anatomical entity
+    NCIT:C20130: protein family
+
+    orphanet:410298: gene
+    orphanet:410299: noncoding RNA product
+    orphanet:410297: nucleic acid entity
+    orphanet:C001: disease
+    orphanet:C005: phenotypic feature
+
+    owl:Thing: named thing
+
+    PATO:0000001: named thing
+
+    PR:000000001: protein
+
+    SO:0001217: gene
+    SO:0000704: gene
+
+    SNOMED:64572001: disease
+    SNOMED:404684003: phenotypic feature
+    SNOMED:410607006: organism taxon
+    SNOMED:373873005: drug
+    SNOMED:105590001: chemical entity
+
+    UBERON:0001062: anatomical entity
+    UBERON:0000105: life stage
+
+    UPHENO:0001001: phenotypic feature

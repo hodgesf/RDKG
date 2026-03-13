@@ -1,0 +1,62 @@
+use_for_bidirectional_mapping:
+  - biolink: https://w3id.org/biolink/vocab/
+  - biolink_download_source: https://github.com/biolink/biolink-model.git
+  - MONDO: http://purl.obolibrary.org/obo/MONDO_
+  - HP: http://purl.obolibrary.org/obo/HP_
+  - GO: http://purl.obolibrary.org/obo/GO_
+  - CHEBI: http://purl.obolibrary.org/obo/CHEBI_
+  - UBERON: http://purl.obolibrary.org/obo/UBERON_
+  - CL: http://purl.obolibrary.org/obo/CL_
+  - RO: http://purl.obolibrary.org/obo/RO_
+  - BFO: http://purl.obolibrary.org/obo/BFO_
+  - IAO: http://purl.obolibrary.org/obo/IAO_
+  - NCBITaxon: http://purl.obolibrary.org/obo/NCBITaxon_
+  - DOID: http://purl.obolibrary.org/obo/DOID_
+  - OMIM: http://purl.obolibrary.org/obo/OMIM_
+  - orphanet: http://www.orpha.net/ORDO/Orphanet_
+  - NCIT: "https://identifiers.org/ncit:"
+  - NCBIGene: http://identifiers.org/ncbigene/
+  - UniProtKB: http://purl.uniprot.org/uniprot/
+  - CHEMBL.COMPOUND: "https://identifiers.org/chembl.compound:"
+  - CHEMBL.TARGET: "https://identifiers.org/chembl.target:"
+  - DRUGBANK: "https://identifiers.org/drugbank:"
+  - KEGG: http://www.kegg.jp/entry/
+  - HMDB: "https://identifiers.org/hmdb:"
+  - rdf: https://www.w3.org/TR/2004/REC-owl-guide-20040210/#
+  - rdfs: http://www.w3.org/2000/01/rdf-schema#
+  - owl: http://www.w3.org/2002/07/owl#
+  - skos: http://www.w3.org/2004/02/skos/core#
+  - dc: http://purl.org/dc/elements/1.1/
+  - dcterms: http://purl.org/dc/terms/
+
+use_for_contraction_only:
+
+  - GO: "&obo;GO_"
+  - GO: "GO:"
+
+  - HP: "&obo;HP_"
+  - HP: "HP:"
+
+  - MONDO: "MONDO:"
+  - MONDO: "mondo-base:"
+
+  - DOID: "&obo;DOID_"
+  - DOID: "DOID:"
+
+  - CHEBI: "&obo;CHEBI_"
+
+  - CL: "&obo;CL_"
+
+  - UBERON: "&obo;UBERON_"
+
+  - IAO: "&obo;IAO_"
+
+  - RO: "&obo;RO_"
+  - RO: "obo:RO_"
+
+  - NCBITaxon: "&obo;NCBITaxon"
+
+  - OIO: "oboInOwl:"
+
+  - skos: "skos:"
+  - rdfs: "rdfs:"
