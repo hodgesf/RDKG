@@ -24,7 +24,9 @@ convert
   ↓
 merge
   ↓
-simplify / normalize
+simplify
+  ↓
+normalize
 ```
 
 
