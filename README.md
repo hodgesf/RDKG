@@ -8,11 +8,37 @@ The pipeline is fully reproducible and designed for HPC environments. Raw data i
 
 ---
 
-## Quick Start
+## System Requirements
+
+### Minimum
+
+* **OS**: macOS (10.15+), Linux (Ubuntu 18.04+, CentOS 7+), or Windows (WSL2)
+* **Python**: 3.9 or higher
+* **Disk**: ~200 GB (compressed archives + extracted files + outputs)
+* **RAM**: 16 GB (32 GB recommended for parallel processing)
+* **Network**: Stable internet connection for S3 downloads (~50 GB total)
+
+### S3 Access
+
+All data sources (except Orphanet) are downloaded from a **public S3 bucket**:
+
+```
+https://translator-ingests.s3.us-east-1.amazonaws.com/
+```
+
+No AWS credentials required. If downloads fail, verify:
+* Network connectivity and firewall rules
+* `curl` or `wget` are available in your shell
+
+---
+
+## Installation
+
+### Quick Start
 
 Build the entire graph with a single command:
 
-```
+```bash
 ./build_graph.sh --setup
 ```
 
@@ -25,6 +51,38 @@ This will:
 5. Merge graphs
 6. Filter edges/nodes
 7. Compute statistics
+
+### Manual Installation
+
+If you prefer to set up manually:
+
+```bash
+# Create virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install --upgrade pip
+pip install -r setup/requirements.txt
+
+# Run individual pipeline steps
+bash process/ingest_data.sh
+bash process/unzip.sh
+python process/merge_graphs.py --help
+python process/filter_graph.py
+python stats/stats.py
+```
+
+### Expected Runtime
+
+* **Full pipeline**: ~30–60 minutes (depends on network speed and disk I/O)
+  * Download: ~15–25 min (50 GB from S3)
+  * Extract: ~5–10 min (highly variable by storage type)
+  * Merge: ~3–5 min
+  * Filter: ~2–3 min
+  * Statistics: ~1–2 min
+
+*Times are approximate and may vary significantly on HPC clusters or slow storage.*
 
 ---
 
@@ -97,10 +155,14 @@ No isolated nodes.
 │       │   └── graph-metadata.json
 │
 ├── process/
-│   ├── ingest_data.sh          # downloads from S3
-│   ├── unzip.sh                # extracts .tar.zst
+│   ├── ingest_data.sh          # downloads standard sources from S3
+│   ├── ingest_orphanet.sh      # downloads Orphanet XML files
+│   ├── unzip.sh                # extracts .tar.zst archives
+│   ├── transform_orphanet.py   # transforms Orphanet XML to JSONL
 │   ├── merge_graphs.py         # graph merge
-│   └── filter_graph.py         # filtering
+│   ├── filter_graph.py         # filtering
+│   ├── orphanet_ingest.py      # Orphanet ingestion utilities (from translator ingest)
+│   └── biolink_util.py         # Biolink utilities (from translator ingest)
 │
 ├── stats/
 │   ├── stats.py
@@ -120,17 +182,42 @@ No isolated nodes.
 
 ### 1. Data Download
 
-Downloads all sources from:
+#### Standard Sources
+
+Downloads from the public Translator ingest S3 bucket:
 
 ```
 https://translator-ingests.s3.us-east-1.amazonaws.com/releases/<source>/latest/<source>.tar.zst
 ```
 
+#### Orphanet
+
+Downloads directly from Orphanet:
+
+```
+https://www.orphadata.com/data/xml/en_product<N>.xml
+```
+
+Files downloaded:
+- `en_product6.xml`: Disease-gene associations
+- `en_product1.xml`: Disease metadata and external identifiers
+- `en_product4.xml`: Disease-phenotype (HPO) associations
+- `en_funct_consequences.xml`: Disease-disability associations
+
 ### 2. Extraction
 
-Archives are extracted into per-source directories.
+Standard source archives (`.tar.zst`) are extracted into per-source directories.
 
-### 3. Merge
+### 3. Transformation
+
+**Orphanet XML files** are transformed into KGX JSONL format via [process/transform_orphanet.py](process/transform_orphanet.py):
+- Extracts Disease and Gene nodes
+- Creates GeneToDiseaseAssociation edges
+- Maps external disease identifiers (MONDO, ICD-11, OMIM, UMLS)
+- Extracts HPO phenotype associations
+- Extracts disability/functional consequence associations
+
+### 4. Merge
 
 Combines all source graphs:
 
@@ -143,7 +230,7 @@ Outputs:
 * `files/all_edges.jsonl`
 * `files/orphan_edges.jsonl`
 
-### 4. Filtering
+### 5. Filtering
 
 Removes unwanted predicates (e.g., `biolink:subclass_of`) and prunes unused nodes.
 
@@ -152,7 +239,7 @@ Outputs:
 * `files/nodes_filtered.jsonl`
 * `files/edges_filtered.jsonl`
 
-### 5. Statistics
+### 6. Statistics
 
 Computes summary metrics and distributions.
 
@@ -167,35 +254,168 @@ Outputs:
 
 ### Nodes
 
-* `id` (CURIE)
-* `name`
-* `category`
-* `attributes`
+```json
+{
+  "id": "MONDO:0005300",
+  "name": "schizophrenia",
+  "category": ["biolink:Disease"],
+  "attributes": {
+    "xrefs": ["DOID:5419"],
+    "description": "..."
+  }
+}
+```
+
+* `id` (CURIE): Unique identifier (e.g., `MONDO:`, `NCBI_GENE:`, `CHEMBL:`)
+* `name`: Human-readable label
+* `category`: List of Biolink semantic types
+* `attributes`: Additional metadata (xrefs, descriptions, source info)
 
 ### Edges
 
-* `subject`
-* `predicate`
-* `object`
-* `category`
-* `provided_by`
+```json
+{
+  "subject": "MONDO:0005300",
+  "predicate": "biolink:associated_with",
+  "object": "HP:0000716",
+  "category": ["biolink:Association"],
+  "provided_by": "hpoa"
+}
+```
+
+* `subject`: CURIE of source node
+* `predicate`: Biolink predicate (e.g., `biolink:associated_with`)
+* `object`: CURIE of target node
+* `category`: Edge semantic types
+* `provided_by`: Source database name
 
 ---
 
-## Requirements
+## Dependency Versions
 
-```
+See [setup/versions.md](setup/versions.md) for tested dependency versions. Install with:
+
+```bash
 pip install -r setup/requirements.txt
 ```
+
+**Note**: The pipeline is tested with the versions in `setup/versions.md`. Newer versions of dependencies may work but are not guaranteed.
+
+---
+
+## Advanced Usage
+
+### Run Individual Pipeline Steps
+
+You can run steps independently (ensure earlier steps are completed first):
+
+```bash
+# Download data only
+bash process/ingest_data.sh
+
+# Extract existing downloads
+bash process/unzip.sh
+
+# Merge graphs (requires extracted data)
+python process/merge_graphs.py
+
+# Filter edges/nodes
+python process/filter_graph.py
+
+# Compute statistics
+python stats/stats.py
+```
+
+### Customize Filtering Rules
+
+Edit [process/filter_graph.py](process/filter_graph.py) to modify which predicates/nodes are kept. By default, `biolink:subclass_of` edges are removed.
+
+### Customize Orphanet Processing
+
+Edit [process/transform_orphanet.py](process/transform_orphanet.py) to:
+- Change which Orphanet files are processed
+- Modify predicate mappings for gene-disease associations
+- Adjust disease/disability association handling
+- Filter specific association types
+
+Example modifications:
+- Comment out XML file processing functions to skip them
+- Modify `ASSOCIATION_TYPE_PREDICATE_MAPPING` to customize edge predicates
+- Adjust heuristics for disability ID generation
+
+### On HPC Clusters
+
+For large-scale deployments, the pipeline can be adapted to distributed systems. Contact the maintainer for guidance.
+
+---
+
+## Troubleshooting
+
+### Download Failures
+
+**Problem**: S3 download fails or times out.
+
+**Solutions**:
+* Check internet connectivity: `curl -I https://translator-ingests.s3.us-east-1.amazonaws.com/`
+* Try re-running `process/ingest_data.sh` (many sources can resume partial downloads)
+* Ensure adequate disk space: `df -h`
+* For transient issues, wait and retry
+
+### Orphanet Download Failures
+
+**Problem**: Orphanet XML files fail to download or `transform_orphanet.py` reports missing files.
+
+**Solutions**:
+* Verify Orphanet website is accessible: `curl -I https://www.orphadata.com/data/xml/en_product6.xml`
+* Check `files/data/orphanet/` directory exists and has `.xml` files
+* Re-run: `bash process/ingest_orphanet.sh`
+* If files missing, the transformation script will continue with available files (non-fatal warnings)
+
+### Out of Disk Space
+
+**Problem**: "No space left on device" error during extraction.
+
+**Solutions**:
+* Check available space: `df -h /path/to/RDKG`
+* Compressed archives (`.tar.zst`) are ~50 GB; extracted files are ~150 GB; filtered outputs are ~30 GB
+* Remove intermediate archives after extraction: `rm -rf files/data/*/**.tar.zst`
+* Or use a larger disk partition and rerun
+
+### Memory Errors
+
+**Problem**: "Killed" or "out of memory" errors during merge/filter steps.
+
+**Solutions**:
+* Ensure 16+ GB RAM available
+* Close other applications
+* If on HPC, request more memory in job submission
+* Increase virtual memory (not recommended; use physical RAM)
+
+### Import Errors
+
+**Problem**: `ModuleNotFoundError: No module named 'X'`
+
+**Solutions**:
+* Verify venv is activated: `which python` should show `venv/bin/python`
+* Reinstall dependencies: `pip install -r setup/requirements.txt`
+* Check Python version: `python --version` (should be 3.9+)
+
+### Data Inconsistencies
+
+If output statistics don't match [Graph Statistics](#graph-statistics):
+* Filtering rules may have changed; check [process/filter_graph.py](process/filter_graph.py)
+* Source data may be updated on S3; re-run full pipeline
+* Recompute: `python stats/stats.py`
 
 ---
 
 ## Important Notes
 
 * Large datasets (`.tar.zst`, JSONL outputs) are **not tracked in Git**
-* All data is downloaded at runtime
+* All data is downloaded at runtime from public S3 (no credentials needed)
 * Designed for HPC usage (disk + memory intensive)
 * Pipeline is deterministic and reproducible
+* Output statistics are computed fresh each run; see `stats/stats_all.txt` and `stats/stats_filtered.txt`
 
 ---
 
@@ -209,13 +429,42 @@ pip install -r setup/requirements.txt
 
 ---
 
-## License
+## Code Attribution
 
-MIT
+### Orphanet Ingestion
+
+The Orphanet ingestion code ([process/orphanet_ingest.py](process/orphanet_ingest.py) and [process/biolink_util.py](process/biolink_util.py)) was adapted from the **Translator Phase 3 Data Ingest Pipeline** (formerly maintained separately). These utilities have been streamlined for standalone use in RDKG without the full Koza/Translator framework.
+
+The custom transformation script [process/transform_orphanet.py](process/transform_orphanet.py) is a simplified standalone implementation designed specifically for RDKG's pipeline.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please:
+
+1. Open an issue to discuss proposed changes
+2. Fork the repository
+3. Create a feature branch
+4. Submit a pull request with clear descriptions
+
+For questions or bug reports, contact the maintainer.
 
 ---
 
 ## Maintainer
 
-Frankie Hodges
-Oregon State University
+**Frankie Hodges**  
+Ramsey Lab, Oregon State University  
+[Contact](mailto:frankie.hodges@oregonstate.edu)
+
+---
+
+## Citation
+
+If you use RDKG in your research, please cite:
+
+```
+Rare Disease Knowledge Graph (RDKG). Frankie Hodges, Ramsey Lab, Oregon State University, 2026.
+Available at: https://github.com/hodgesf/RDKG
+```

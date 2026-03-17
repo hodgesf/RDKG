@@ -65,8 +65,14 @@ echo "Starting build pipeline..."
 echo "1. Ingesting data..."
 bash "$ROOT_DIR/process/ingest_data.sh"
 
+echo "1b. Ingesting Orphanet..."
+bash "$ROOT_DIR/process/ingest_orphanet.sh"
+
 echo "2. Unzipping data..."
 bash "$ROOT_DIR/process/unzip.sh"
+
+echo "2b. Transforming Orphanet..."
+python "$ROOT_DIR/process/transform_orphanet.py"
 
 echo "3. Merging graphs..."
 python "$ROOT_DIR/process/merge_graphs.py" \
