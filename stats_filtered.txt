@@ -1,0 +1,76 @@
+=== BASIC ===
+Nodes: 989050
+Edges: 4038447
+
+=== NODE CATEGORIES ===
+biolink:NamedThing 976246
+biolink:PhysicalEssenceOrOccurrent 929998
+biolink:ChemicalEntityOrGeneOrGeneProduct 929552
+biolink:PhysicalEssence 912198
+biolink:ChemicalEntityOrProteinOrPolypeptide 907340
+biolink:ChemicalEntity 836498
+biolink:ChemicalOrDrugOrTreatment 836498
+biolink:SmallMolecule 804029
+biolink:MolecularEntity 804029
+biolink:BiologicalEntity 139694
+biolink:ThingWithTaxon 139694
+biolink:OntologyClass 93758
+biolink:GeneOrGeneProduct 85615
+biolink:MacromolecularMachineMixin 85615
+biolink:Gene 78283
+biolink:GenomicEntity 73733
+biolink:Protein 70842
+biolink:GeneProductMixin 70842
+biolink:Polypeptide 70842
+biolink:DiseaseOrPhenotypicFeature 26907
+
+=== EDGE PREDICATES ===
+biolink:directly_physically_interacts_with 1068950
+biolink:physically_interacts_with 622361
+biolink:related_to 420963
+biolink:associated_with 335447
+biolink:enables 274241
+biolink:affects 261913
+biolink:has_phenotype 258162
+biolink:located_in 220306
+biolink:has_side_effect 139874
+biolink:acts_upstream_of_or_within 92710
+biolink:active_in 80778
+biolink:orthologous_to 76519
+biolink:member_of 58799
+biolink:has_part 35671
+biolink:interacts_with 33100
+biolink:regulates 15877
+biolink:contributes_to 11736
+biolink:correlated_with 11237
+biolink:equivalent_to 8011
+biolink:positively_correlated_with 2285
+
+=== EDGE CATEGORIES ===
+biolink:ChemicalGeneInteractionAssociation 1087629
+biolink:GeneToGoTermAssociation 791755
+biolink:PairwiseMolecularInteraction 622361
+biolink:Association 371457
+biolink:GeneToPhenotypicFeatureAssociation 324912
+biolink:ChemicalAffectsGeneAssociation 275948
+biolink:DiseaseToPhenotypicFeatureAssociation 258162
+biolink:ChemicalEntityToDiseaseOrPhenotypicFeatureAssociation 139874
+biolink:GeneToGeneHomologyAssociation 76519
+biolink:GeneToGeneFamilyAssociation 58799
+biolink:GeneRegulatesGeneAssociation 18072
+biolink:CausalGeneToDiseaseAssociation 6943
+biolink:GeneToDiseaseAssociation 3021
+biolink:ChemicalEntityToChemicalEntityAssociation 2396
+biolink:CorrelatedGeneToDiseaseAssociation 630
+biolink:GeneAffectsChemicalAssociation 13
+
+=== DEGREE ===
+Mean: 8.166315150902381
+Median: 1
+90th: 7
+99th: 122
+Max: 27278
+
+=== CONNECTIVITY ===
+Connected nodes: 989050
+Isolated nodes: 0

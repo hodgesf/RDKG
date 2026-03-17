@@ -90,7 +90,7 @@ def compute_stats(nodes_file, edges_file, out_file):
 
 
 # --- RUN BOTH ---
-compute_stats("all_nodes.jsonl", "all_edges.jsonl", "stats_all.txt")
-compute_stats("nodes_filtered.jsonl", "edges_filtered.jsonl", "stats_filtered.txt")
+compute_stats("files/all_nodes.jsonl", "files/all_edges.jsonl", "stats_all.txt")
+compute_stats("files/nodes_filtered.jsonl", "files/edges_filtered.jsonl", "stats_filtered.txt")
 
 print("Done: stats_all.txt and stats_filtered.txt")

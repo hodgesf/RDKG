@@ -10,13 +10,26 @@ The pipeline is fully reproducible and designed for HPC environments. Raw data i
 
 ## System Requirements
 
-### Minimum
+### Minimum (Observed)
 
-* **OS**: macOS (10.15+), Linux (Ubuntu 18.04+, CentOS 7+), or Windows (WSL2)
-* **Python**: 3.9 or higher
-* **Disk**: ~200 GB (compressed archives + extracted files + outputs)
-* **RAM**: 16 GB (32 GB recommended for parallel processing)
-* **Network**: Stable internet connection for S3 downloads (~50 GB total)
+* **OS**: Linux (tested on HPC DGX-h node)
+* **Python**: 3.11+
+* **Disk**: ~25–30 GB (end-to-end pipeline)
+* **RAM**: ~6 GB peak observed (5.46 GB max RSS)
+* **CPU**: 16+ cores recommended (pipeline parallelism limited but benefits from I/O concurrency)
+
+
+### Tested Environment
+
+The pipeline has been tested on:
+
+* **System**: NVIDIA DGX-h node
+* **CPU**: 16 cores
+* **RAM**: 128 GB
+* **Storage**: HPC shared filesystem
+* **Runtime**: ~10 minutes total
+* **Peak Memory (RSS)**: ~5.46 GB
+* **Disk Usage (final)**: ~24 GB
 
 ### S3 Access
 
@@ -73,16 +86,20 @@ python process/filter_graph.py
 python stats/stats.py
 ```
 
-### Expected Runtime
+### Observed Runtime
 
-* **Full pipeline**: ~30–60 minutes (depends on network speed and disk I/O)
-  * Download: ~15–25 min (50 GB from S3)
-  * Extract: ~5–10 min (highly variable by storage type)
-  * Merge: ~3–5 min
-  * Filter: ~2–3 min
-  * Statistics: ~1–2 min
+On HPC (DGX-h node):
 
-*Times are approximate and may vary significantly on HPC clusters or slow storage.*
+* **Total runtime**: ~10.5 minutes
+* **CPU utilization**: ~84%
+* **Peak memory**: ~5.46 GB
+* **Disk usage (final)**: ~24 GB
+
+Breakdown (approximate):
+
+* Download: dominant cost (network-bound)
+* Extraction: moderate (CPU + disk I/O)
+* Merge + filter + stats: fast (<5 minutes combined)
 
 ---
 
@@ -377,7 +394,8 @@ For large-scale deployments, the pipeline can be adapted to distributed systems.
 
 **Solutions**:
 * Check available space: `df -h /path/to/RDKG`
-* Compressed archives (`.tar.zst`) are ~50 GB; extracted files are ~150 GB; filtered outputs are ~30 GB
+* Typical full pipeline footprint: ~25–30 GB
+* Size varies depending on source versions and filtering
 * Remove intermediate archives after extraction: `rm -rf files/data/*/**.tar.zst`
 * Or use a larger disk partition and rerun
 
@@ -386,7 +404,7 @@ For large-scale deployments, the pipeline can be adapted to distributed systems.
 **Problem**: "Killed" or "out of memory" errors during merge/filter steps.
 
 **Solutions**:
-* Ensure 16+ GB RAM available
+* Ensure 8+ GB RAM available
 * Close other applications
 * If on HPC, request more memory in job submission
 * Increase virtual memory (not recommended; use physical RAM)
@@ -398,7 +416,7 @@ For large-scale deployments, the pipeline can be adapted to distributed systems.
 **Solutions**:
 * Verify venv is activated: `which python` should show `venv/bin/python`
 * Reinstall dependencies: `pip install -r setup/requirements.txt`
-* Check Python version: `python --version` (should be 3.9+)
+* Check Python version: `python --version` (should be 3.11+)
 
 ### Data Inconsistencies
 

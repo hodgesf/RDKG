@@ -18,7 +18,6 @@ SOURCES=(
   icees
   intact
   ncbi_gene
-  orphanet
   panther
   sider
   signor
