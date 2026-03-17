@@ -99,21 +99,6 @@ python process/filter_graph.py
 python stats/stats.py
 ```
 
-### Observed Runtime
-
-On HPC (DGX-h node):
-
-* **Total runtime**: ~10.5 minutes
-* **CPU utilization**: ~84%
-* **Peak memory**: ~5.46 GB
-* **Disk usage (final)**: ~24 GB
-
-Breakdown (approximate):
-
-* Download: dominant cost (network-bound)
-* Extraction: moderate (CPU + disk I/O)
-* Merge + filter + stats: fast (<5 minutes combined)
-
 ---
 
 ## Data Sources
