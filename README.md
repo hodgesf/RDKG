@@ -2,35 +2,53 @@
 
 ## Overview
 
-This repository contains a large-scale biomedical knowledge graph focused on rare diseases. The graph integrates multiple curated biomedical sources into a unified schema (Biolink-style), enabling downstream tasks such as drug repurposing, molecular target discovery, and clinical decision support.
+This repository contains a biomedical knowledge graph focused on rare diseases. It integrates multiple curated sources into a unified Biolink-style schema for downstream tasks such as drug repurposing, molecular target discovery, and clinical decision support.
 
-The pipeline ingests heterogeneous datasets, normalizes entities and relationships, and produces a merged graph with consistent node and edge representations.
+The pipeline is fully reproducible and designed for HPC environments. Raw data is **not versioned in Git** and is instead downloaded programmatically.
+
+---
+
+## Quick Start
+
+Build the entire graph with a single command:
+
+```
+./build_graph.sh --setup
+```
+
+This will:
+
+1. Create/activate a virtual environment
+2. Install dependencies
+3. Download all source data from S3
+4. Extract archives
+5. Merge graphs
+6. Filter edges/nodes
+7. Compute statistics
 
 ---
 
 ## Data Sources
 
-The following sources are included in the graph:
+| Source         | Expanded Name                                           | Description                                                                                                                                            |
+| -------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| bindingdb      | BindingDB                                               | Protein–small molecule binding affinities.                                                                                                             |
+| chembl         | ChEMBL                                                  | Drug bioactivity database with target information.                                                                                                     |
+| dgidb          | Drug–Gene Interaction Database                          | Aggregated drug–gene interactions.                                                                                                                     |
+| gene2phenotype | Gene2Phenotype (G2P)                                    | Gene–disease relationships with curated pathogenicity evidence.                                                                                        |
+| goa            | Gene Ontology Annotations                               | Functional annotations using GO terms.                                                                                                                 |
+| hpoa           | Human Phenotype Ontology Annotations                    | Disease–phenotype associations (HPO).                                                                                                                  |
+| icees          | Integrated Clinical and Environmental Exposures Service | Clinical and environmental exposure associations.                                                                                                      |
+| intact         | IntAct                                                  | Molecular and protein–protein interactions.                                                                                                            |
+| ncbi_gene      | NCBI Gene                                               | Gene identifiers and metadata.                                                                                                                         |
+| orphanet       | Orphanet                                                | Rare disease definitions and classifications. Includes en_product1, en_product4, en_product6, and en_func_consequences datasets used in this pipeline. |
+| panther        | PANTHER                                                 | Protein families and pathways.                                                                                                                         |
+| sider          | SIDER                                                   | Drug side effects.                                                                                                                                     |
+| signor         | SIGNOR                                                  | Causal signaling relationships.                                                                                                                        |
+| ubergraph      | Ubergraph                                               | Integrated ontology graph (OBO stack). Incorporates ontologies including NCBITaxon, CHEBI, UniProtKB, PR, GO, MONDO, UMLS, NCIT, HP, and UBERON.       |
 
-| Source         | Expanded Name                                                 | Description                                                                                              |
-| -------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| bindingdb      | BindingDB                                                     | Database of measured binding affinities between proteins and small molecules (drug–target interactions). |
-| chembl         | ChEMBL                                                        | Curated bioactivity database of drugs and drug-like molecules with target information.                   |
-| dgidb          | Drug–Gene Interaction Database                                | Aggregates known and potential drug–gene interactions from multiple sources.                             |
-| gene2phenotype | Gene2Phenotype (G2P)                                          | Links genes to diseases and phenotypes with curated evidence of pathogenicity.                           |
-| goa            | Gene Ontology Annotations                                     | Provides functional annotations of genes using Gene Ontology terms.                                      |
-| hpoa           | Human Phenotype Ontology Annotations                          | Associates diseases with human phenotypic abnormalities (HPO terms).                                     |
-| icees          | Integrated Clinical and Environmental Exposures Service       | Clinical + environmental exposure data for exploring associations in patient cohorts.                    |
-| intact         | IntAct Molecular Interaction Database                         | Curated database of molecular and protein–protein interactions.                                          |
-| ncbi_gene      | NCBI Gene                                                     | Central repository of gene-specific information including identifiers and metadata.                      |
-| orphanet       | Orphanet                                                      | Comprehensive resource on rare diseases, including disease definitions and classifications.              |
-| panther        | PANTHER (Protein ANalysis THrough Evolutionary Relationships) | Protein families, functions, and pathways based on evolutionary relationships.                           |
-| sider          | SIDER (Side Effect Resource)                                  | Database of drug side effects extracted from public documents and labels.                                |
-| signor         | SIGNOR (Signaling Network Open Resource)                      | Curated causal relationships between biological entities in signaling pathways.                          |
-| ubergraph      | Ubergraph                                                     | Integrated ontology graph combining multiple OBO ontologies into a unified structure.                    |
+All sources (except Orphanet) are downloaded from the Translator ingest S3 bucket.
 
-
-These sources collectively cover drugs, genes, phenotypes, pathways, molecular interactions, and disease ontologies, with strong emphasis on rare disease representation (via Orphanet and HPO).
 
 ---
 
@@ -44,48 +62,18 @@ These sources collectively cover drugs, genes, phenotypes, pathways, molecular i
 ### Disease Distribution
 
 * Total diseases: 56,171
-* Rare diseases (Orphanet): 11,456
-* Rare disease proportion: ~21%
+* Rare diseases (OrPHA): 11,456
+* ~21% rare diseases
 
 ### Degree Distribution
 
-* Mean degree: 8.17
+* Mean: 8.17
 * Median: 1
-* 90th percentile: 7
-* 99th percentile: 122
+* 90th: 7
+* 99th: 122
 * Max: 27,278
 
-All nodes participate in at least one edge (no isolated nodes).
-
----
-
-## Node Distribution (Top Categories)
-
-* biolink:NamedThing — 976,246
-* biolink:PhysicalEssenceOrOccurrent — 930,000
-* biolink:ChemicalEntityOrGeneOrGeneProduct — 929,554
-* biolink:PhysicalEssence — 912,200
-* biolink:ChemicalEntityOrProteinOrPolypeptide — 907,337
-
----
-
-## Edge Distribution
-
-### Top Predicates
-
-* biolink:directly_physically_interacts_with — 1,068,950
-* biolink:physically_interacts_with — 622,361
-* biolink:related_to — 420,963
-* biolink:associated_with — 335,447
-* biolink:enables — 274,241
-
-### Top Edge Categories
-
-* biolink:ChemicalGeneInteractionAssociation — 1,087,629
-* biolink:GeneToGoTermAssociation — 791,755
-* biolink:PairwiseMolecularInteraction — 622,361
-* biolink:Association — 363,085
-* biolink:GeneToPhenotypicFeatureAssociation — 324,912
+No isolated nodes.
 
 ---
 
@@ -93,16 +81,26 @@ All nodes participate in at least one edge (no isolated nodes).
 
 ```
 .
-├── files/
+├── build_graph.sh              # full pipeline entrypoint
+│
+├── files/                      # generated + downloaded data (NOT versioned)
+│   ├── all_nodes.jsonl
+│   ├── all_edges.jsonl
+│   ├── nodes_filtered.jsonl
+│   ├── edges_filtered.jsonl
+│   ├── orphan_edges.jsonl
 │   └── data/
 │       ├── <source>/
-│       │   ├── *.tar.zst          # raw compressed data
+│       │   ├── *.tar.zst
+│       │   ├── nodes.jsonl
+│       │   ├── edges.jsonl
 │       │   └── graph-metadata.json
 │
 ├── process/
-│   ├── merge_graphs.py            # merges all sources
-│   ├── filter_graph.py            # applies filtering rules
-│   └── unzip.sh                   # extraction script
+│   ├── ingest_data.sh          # downloads from S3
+│   ├── unzip.sh                # extracts .tar.zst
+│   ├── merge_graphs.py         # graph merge
+│   └── filter_graph.py         # filtering
 │
 ├── stats/
 │   ├── stats.py
@@ -118,106 +116,73 @@ All nodes participate in at least one edge (no isolated nodes).
 
 ---
 
-## Data Format
+## Pipeline Details
 
-All graph data is stored in JSON Lines format:
+### 1. Data Download
 
-### Nodes (`nodes.jsonl`)
-
-Each line is a JSON object representing a node:
-
-* id (CURIE)
-* name
-* category (Biolink class)
-* attributes (optional metadata)
-
-### Edges (`edges.jsonl`)
-
-Each line is a JSON object representing an edge:
-
-* subject
-* predicate
-* object
-* category
-* provided_by
-
----
-
-## Pipeline
-
-### 1. Extraction
-
-Raw `.tar.zst` files are unpacked:
+Downloads all sources from:
 
 ```
-bash extract/unzip.sh
+https://translator-ingests.s3.us-east-1.amazonaws.com/releases/<source>/latest/<source>.tar.zst
 ```
 
-### 2. Source Parsing
+### 2. Extraction
 
-Each source is converted into:
-
-* `nodes.jsonl`
-* `edges.jsonl`
+Archives are extracted into per-source directories.
 
 ### 3. Merge
 
-All sources are merged:
+Combines all source graphs:
 
-```
-python merge_graphs.py
-```
+* deduplicates nodes
+* removes orphan edges
 
 Outputs:
 
-* `all_nodes.jsonl`
-* `all_edges.jsonl`
+* `files/all_nodes.jsonl`
+* `files/all_edges.jsonl`
+* `files/orphan_edges.jsonl`
 
 ### 4. Filtering
 
-Optional filtering (predicate cleanup, deduplication, etc.):
-
-```
-python filter_graph.py
-```
+Removes unwanted predicates (e.g., `biolink:subclass_of`) and prunes unused nodes.
 
 Outputs:
 
-* `nodes_filtered.jsonl`
-* `edges_filtered.jsonl`
+* `files/nodes_filtered.jsonl`
+* `files/edges_filtered.jsonl`
 
 ### 5. Statistics
 
-```
-python stats/stats.py
-```
+Computes summary metrics and distributions.
+
+Outputs:
+
+* `stats/stats_all.txt`
+* `stats/stats_filtered.txt`
 
 ---
 
-## Design Notes
+## Data Format
 
-* Uses Biolink-style categories and predicates
-* Emphasizes rare disease coverage via Orphanet + HPO
-* Maintains full provenance via `provided_by`
-* No isolated nodes (fully connected graph)
-* Heavy-tailed degree distribution typical of biological networks
-* All sources, except for Orphanet, were obtained from translater-ingest team, copied from the public s3 bucket called `translator-ingests`
+### Nodes
 
----
+* `id` (CURIE)
+* `name`
+* `category`
+* `attributes`
 
-## Use Cases
+### Edges
 
-* Rare disease molecular target discovery
-* Drug repurposing
-* Knowledge graph embeddings
-* RAG pipelines for biomedical LLMs
-* Clinical decision support systems
+* `subject`
+* `predicate`
+* `object`
+* `category`
+* `provided_by`
 
 ---
 
 ## Requirements
-
-Install dependencies:
 
 ```
 pip install -r setup/requirements.txt
@@ -225,17 +190,28 @@ pip install -r setup/requirements.txt
 
 ---
 
-## Notes
+## Important Notes
 
-* Raw data is large and intended for HPC environments
-* Intermediate files may require significant disk space
-* Processing ~1M nodes / ~4M edges benefits from parallelization
+* Large datasets (`.tar.zst`, JSONL outputs) are **not tracked in Git**
+* All data is downloaded at runtime
+* Designed for HPC usage (disk + memory intensive)
+* Pipeline is deterministic and reproducible
+
+---
+
+## Use Cases
+
+* Rare disease target discovery
+* Drug repurposing
+* Biomedical knowledge graph embeddings
+* RAG pipelines for LLMs
+* Clinical decision support
 
 ---
 
 ## License
 
-MIT 
+MIT
 
 ---
 

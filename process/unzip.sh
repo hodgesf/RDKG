@@ -2,7 +2,10 @@
 
 set -euo pipefail
 
-INPUT_DIR="files/zip"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(dirname "$SCRIPT_DIR")"
+
+INPUT_DIR="$ROOT_DIR/files/zip"
 
 echo "Looking in: $INPUT_DIR"
 ls -lh "$INPUT_DIR"
@@ -21,6 +24,5 @@ for file in "${files[@]}"; do
 
     mkdir -p "$outdir"
 
-    # safer: let tar handle zstd directly
     tar -I zstd -xvf "$file" -C "$outdir"
 done

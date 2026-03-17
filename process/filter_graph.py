@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
 
 import json
+from pathlib import Path
 
-EDGES_IN = "all_edges.jsonl"
-NODES_IN = "all_nodes.jsonl"
+# resolve repo root
+SCRIPT_DIR = Path(__file__).resolve().parent
+ROOT_DIR = SCRIPT_DIR.parent
 
-EDGES_OUT = "edges_filtered.jsonl"
-NODES_OUT = "nodes_filtered.jsonl"
+FILES_DIR = ROOT_DIR / "files"
+
+EDGES_IN = FILES_DIR / "all_edges.jsonl"
+NODES_IN = FILES_DIR / "all_nodes.jsonl"
+
+EDGES_OUT = FILES_DIR / "edges_filtered.jsonl"
+NODES_OUT = FILES_DIR / "nodes_filtered.jsonl"
 
 
 kept_nodes = set()
