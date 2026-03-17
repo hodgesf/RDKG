@@ -1,7 +1,6 @@
 # ===============================
 # Python
 # ===============================
-
 __pycache__/
 *.py[cod]
 *.pyo
@@ -13,19 +12,16 @@ venv/
 .env/
 .venv/
 env/
-kg2-venv/
 
 # ===============================
 # OS Files
 # ===============================
-
 .DS_Store
 Thumbs.db
 
 # ===============================
 # IDE / Editor
 # ===============================
-
 .vscode/
 .idea/
 *.swp
@@ -34,49 +30,54 @@ Thumbs.db
 # ===============================
 # Logs
 # ===============================
-
 *.log
 
 # ===============================
 # Snakemake
 # ===============================
-
 .snakemake/
 snakemake.log
 
 # ===============================
-# Downloaded Data
+# Downloaded / Raw Data
 # ===============================
-
 owl_files/*
 !owl_files/.gitkeep
 
 # ===============================
-# Generated Graph Files
+# Graph Data (IMPORTANT)
 # ===============================
 
+# ignore top-level generated graph files
+files/*.jsonl
+
+# ignore per-source node/edge files
+files/*/*.jsonl
+
+# (optional) ignore nested data dir if used
+files/data/*/*.jsonl
+
+# ===============================
+# Generated Graph Outputs
+# ===============================
 jsonl/*
 !jsonl/.gitkeep
 
 # ===============================
 # Build / Temporary Files
 # ===============================
-
 tmp/
 temp/
 build/
 
 # ===============================
-# Python Packaging
+# Packaging
 # ===============================
-
 dist/
 *.egg-info/
 
 # ===============================
 # Cache
 # ===============================
-
 .cache/
-
 .ipynb_checkpoints/

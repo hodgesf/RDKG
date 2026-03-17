@@ -1,0 +1,24 @@
+# Core
+jsonlines
+PyYAML
+pandas
+numpy
+requests
+tqdm
+
+# Parsing / graph
+rdflib
+lxml
+xmltodict
+
+# Biolink / KG utilities
+bmt
+linkml-runtime
+curies
+prefixcommons
+
+# Your package
+kg2-util
+
+# Workflow
+snakemake

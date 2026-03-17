@@ -1,324 +1,245 @@
-# Overview
-
-This repository constructs a biomedical knowledge graph by ingesting
-biomedical ontologies and structured biomedical datasets, converting
-them into a unified representation, merging them into a single graph,
-and normalizing predicates and provenance.
-
-The pipeline produces a graph stored in JSON Lines format consisting of
-node and edge records.
-
-The workflow is orchestrated using **Snakemake**, but every step can
-also be executed manually.
+# Rare Disease Knowledge Graph (RDKG)
 
-# Pipeline Architecture
+## Overview
 
-The build process consists of five major stages.
+This repository contains a large-scale biomedical knowledge graph focused on rare diseases. The graph integrates multiple curated biomedical sources into a unified schema (Biolink-style), enabling downstream tasks such as drug repurposing, molecular target discovery, and clinical decision support.
 
-:::
-    download
-       ↓
-    extract
-       ↓
-    convert
-       ↓
-    merge
-       ↓
-    simplify / normalize
-:::
-
-## Download
-
-Ontology and dataset files are downloaded from remote sources specified
-in YAML inventory files.
-
-## Extract
-
-Raw source files are parsed into intermediate JSONL representations.
-
-## Convert
-
-Intermediate records are transformed into graph nodes and edges.
-
-## Merge
-
-Ontology and source graphs are merged into a unified graph.
-
-## Simplify / Normalize
-
-Predicates and provenance are normalized to Biolink and Translator
-conventions.
-
-# Repository Structure
-
-    .
-    ├── Snakefile
-    ├── extract
-    │   ├── owl_parser.py
-    │   └── source_parser.py
-    ├── transform
-    │   ├── convert_ontologies.py
-    │   ├── convert_sources.py
-    │   ├── merge_graphs.py
-    │   └── filter_kg_and_remap_predicates.py
-    ├── yaml
-    │   ├── ont-load-inventory.yaml
-    │   ├── source-load-inventory.yaml
-    │   ├── predicate-remap.yaml
-    │   ├── curies-to-categories.yaml
-    │   ├── curies-to-urls-map.yaml
-    │   ├── edge-blocklist.yaml
-    │   ├── kg2-provided-by-curie-to-infores-curie.yaml
-    │   └── knowledge-level-agent-type-map.yaml
-    ├── owl_files
-    ├── jsonl
-    ├── scripts
-    ├── global_config_and_helpers
-    │   └── kg2_util.py
-    └── versions.md
-
-# Ontologies Ingested
-
-The following ontologies are included.
-
-| Ontology | Description |
-|----------|-------------|
-| BFO | Basic Formal Ontology |
-| CHEBI | Chemical Entities of Biological Interest |
-| CL | Cell Ontology |
-| GO | Gene Ontology |
-| HP | Human Phenotype Ontology |
-| INO | Interaction Network Ontology |
-| MI | Molecular Interaction Ontology |
-| MONDO | Disease Ontology |
-| ORDO | Orphanet Rare Disease Ontology |
-| PATO | Phenotype and Trait Ontology |
-| PR | Protein Ontology |
-| RO | Relation Ontology |
-| TAXSLIM | Taxonomic subset |
-| UBERON | Anatomy Ontology |
-
+The pipeline ingests heterogeneous datasets, normalizes entities and relationships, and produces a merged graph with consistent node and edge representations.
 
-These ontologies are specified in
+---
 
-    yaml/ont-load-inventory.yaml
+## Data Sources
 
-# External Data Sources
+The following sources are included in the graph:
 
-Non-ontology sources are specified in
+| Source         | Expanded Name                                                 | Description                                                                                              |
+| -------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| bindingdb      | BindingDB                                                     | Database of measured binding affinities between proteins and small molecules (drug–target interactions). |
+| chembl         | ChEMBL                                                        | Curated bioactivity database of drugs and drug-like molecules with target information.                   |
+| dgidb          | Drug–Gene Interaction Database                                | Aggregates known and potential drug–gene interactions from multiple sources.                             |
+| gene2phenotype | Gene2Phenotype (G2P)                                          | Links genes to diseases and phenotypes with curated evidence of pathogenicity.                           |
+| goa            | Gene Ontology Annotations                                     | Provides functional annotations of genes using Gene Ontology terms.                                      |
+| hpoa           | Human Phenotype Ontology Annotations                          | Associates diseases with human phenotypic abnormalities (HPO terms).                                     |
+| icees          | Integrated Clinical and Environmental Exposures Service       | Clinical + environmental exposure data for exploring associations in patient cohorts.                    |
+| intact         | IntAct Molecular Interaction Database                         | Curated database of molecular and protein–protein interactions.                                          |
+| ncbi_gene      | NCBI Gene                                                     | Central repository of gene-specific information including identifiers and metadata.                      |
+| orphanet       | Orphanet                                                      | Comprehensive resource on rare diseases, including disease definitions and classifications.              |
+| panther        | PANTHER (Protein ANalysis THrough Evolutionary Relationships) | Protein families, functions, and pathways based on evolutionary relationships.                           |
+| sider          | SIDER (Side Effect Resource)                                  | Database of drug side effects extracted from public documents and labels.                                |
+| signor         | SIGNOR (Signaling Network Open Resource)                      | Curated causal relationships between biological entities in signaling pathways.                          |
+| ubergraph      | Ubergraph                                                     | Integrated ontology graph combining multiple OBO ontologies into a unified structure.                    |
 
-    yaml/source-load-inventory.yaml
 
-The pipeline ingests the following structured biomedical data sources:
+These sources collectively cover drugs, genes, phenotypes, pathways, molecular interactions, and disease ontologies, with strong emphasis on rare disease representation (via Orphanet and HPO).
 
-| Source | Description |
-|------|-------------|
-| ChEMBL | Bioactive drug-like small molecules and drug–target interaction data |
-| DrugBank | Curated drug database linking drugs, targets, and mechanisms |
-| DrugCentral | Drug information resource integrating approvals, indications, and targets |
-| Guide to Pharmacology (IUPHAR/BPS) | Expert-curated pharmacology targets and ligands |
-| Therapeutic Target Database (TTD) | Known and explored therapeutic protein and nucleic acid targets |
-| PharmGKB | Pharmacogenomics knowledge linking genes, drugs, and disease |
-| SIDER | Drug side effect resource extracted from public drug labels |
-| Open Targets Platform | Integrated evidence linking targets, diseases, and drugs |
-| NCBI Gene | Gene-centric biological information from NCBI |
-| Ensembl | Genome annotation database for vertebrate genomes |
-| UniProtKB | Comprehensive protein sequence and functional annotation database |
-| GOA | Gene Ontology annotations linking genes to GO terms |
-| miRBase | MicroRNA sequence and annotation database |
-| RefSeq | Curated reference sequences for genes, transcripts, and proteins |
-| DisGeNET | Integrated gene–disease association database |
-| JensenLab DISEASES | Text-mined and curated disease–gene association database |
-| ClinVar | Clinically relevant genetic variants and their interpretations |
-| GWAS Catalog | Genome-wide association study variant–trait associations |
-| OMIM | Online Mendelian Inheritance in Man genetic disease database |
-| IntAct | Molecular interaction database maintained by EMBL-EBI |
-| STRING | Protein–protein interaction network database |
-| BioGRID | Biological interaction repository for proteins and genes |
-| DIP | Database of experimentally determined protein interactions |
-| MINT | Molecular interaction database curated from literature |
-| Reactome | Curated biological pathway knowledgebase |
-| SMPDB | Small Molecule Pathway Database |
-| PathWhiz | Pathway diagram and modeling database |
-| WikiPathways | Community-curated biological pathway database |
-| KEGG | Kyoto Encyclopedia of Genes and Genomes pathway database |
-| UniChem | Cross-reference mapping between chemical structure identifiers |
-| HMDB | Human Metabolome Database |
-| PubChem | Chemical structures, compounds, and bioactivity data |
-| CTD | Comparative Toxicogenomics Database linking chemicals, genes, and disease |
-| SemMedDB | Semantic predications extracted from biomedical literature |
-| ClinicalTrials.gov | Registry of clinical studies and trial metadata |
+---
 
+## Graph Statistics
 
+### Basic
 
-These sources contribute structured biomedical relationships including:
+* Nodes: 989,045
+* Edges: 4,038,447
 
--   gene--disease associations
--   drug--target interactions
--   pathway relationships
--   phenotype associations
+### Disease Distribution
 
-# Graph Output Format
+* Total diseases: 56,171
+* Rare diseases (Orphanet): 11,456
+* Rare disease proportion: ~21%
 
-The final graph is stored in JSON Lines format.
+### Degree Distribution
 
-## Nodes
+* Mean degree: 8.17
+* Median: 1
+* 90th percentile: 7
+* 99th percentile: 122
+* Max: 27,278
 
-    jsonl/nodes.jsonl
+All nodes participate in at least one edge (no isolated nodes).
 
-Example node record:
+---
 
-    {
-    "id": "MONDO:0005148",
-    "name": "type 2 diabetes mellitus",
-    "category": "biolink:Disease"
-    }
+## Node Distribution (Top Categories)
 
-## Edges
+* biolink:NamedThing — 976,246
+* biolink:PhysicalEssenceOrOccurrent — 930,000
+* biolink:ChemicalEntityOrGeneOrGeneProduct — 929,554
+* biolink:PhysicalEssence — 912,200
+* biolink:ChemicalEntityOrProteinOrPolypeptide — 907,337
 
-    jsonl/edges.jsonl
+---
 
-Example edge record:
+## Edge Distribution
 
-    {
-    "subject": "CHEBI:15377",
-    "predicate": "biolink:related_to",
-    "object": "MONDO:0005148"
-    }
+### Top Predicates
 
-# Running the Pipeline with Snakemake
+* biolink:directly_physically_interacts_with — 1,068,950
+* biolink:physically_interacts_with — 622,361
+* biolink:related_to — 420,963
+* biolink:associated_with — 335,447
+* biolink:enables — 274,241
 
-Install Snakemake:
+### Top Edge Categories
 
-    pip install snakemake
+* biolink:ChemicalGeneInteractionAssociation — 1,087,629
+* biolink:GeneToGoTermAssociation — 791,755
+* biolink:PairwiseMolecularInteraction — 622,361
+* biolink:Association — 363,085
+* biolink:GeneToPhenotypicFeatureAssociation — 324,912
 
-Execute the pipeline from the repository root:
+---
 
-    snakemake --cores 8
+## Repository Structure
 
-Recommended command with logging:
+```
+.
+├── files/
+│   └── data/
+│       ├── <source>/
+│       │   ├── *.tar.zst          # raw compressed data
+│       │   └── graph-metadata.json
+│
+├── process/
+│   ├── merge_graphs.py            # merges all sources
+│   ├── filter_graph.py            # applies filtering rules
+│   └── unzip.sh                   # extraction script
+│
+├── stats/
+│   ├── stats.py
+│   ├── stats_all.txt
+│   └── stats_filtered.txt
+│
+├── setup/
+│   ├── requirements.txt
+│   └── versions.md
+│
+└── README.md
+```
 
-    snakemake --cores 8 --printshellcmds --reason --rerun-incomplete
+---
 
-Snakemake will automatically execute all steps required to produce the
-final normalized graph.
+## Data Format
 
-# Running the Pipeline Manually
+All graph data is stored in JSON Lines format:
 
-The pipeline can also be executed without Snakemake.
+### Nodes (`nodes.jsonl`)
 
-## Extract Ontologies
+Each line is a JSON object representing a node:
 
-    python extract/owl_parser.py \
-    yaml/ont-load-inventory.yaml \
-    owl_files/ \
-    jsonl/ontologies.jsonl
+* id (CURIE)
+* name
+* category (Biolink class)
+* attributes (optional metadata)
 
-## Extract Sources
+### Edges (`edges.jsonl`)
 
-    python extract/source_parser.py \
-    yaml/source-load-inventory.yaml \
-    jsonl/ \
-    jsonl/sources.jsonl
+Each line is a JSON object representing an edge:
 
-## Convert Ontologies
+* subject
+* predicate
+* object
+* category
+* provided_by
 
-    python transform/convert_ontologies.py \
-    jsonl/ontologies.jsonl \
-    yaml/curies-to-categories.yaml \
-    yaml/curies-to-urls-map.yaml \
-    4.2.5 \
-    jsonl/ontology_nodes.jsonl \
-    jsonl/ontology_edges.jsonl
+---
 
-## Convert Sources
+## Pipeline
 
-    python transform/convert_sources.py \
-    jsonl/sources.jsonl \
-    yaml/curies-to-categories.yaml \
-    yaml/curies-to-urls-map.yaml \
-    jsonl/source_nodes.jsonl \
-    jsonl/source_edges.jsonl
+### 1. Extraction
 
-## Merge Graphs
+Raw `.tar.zst` files are unpacked:
 
-    python transform/merge_graphs.py \
-    --nodes jsonl/ontology_nodes.jsonl jsonl/source_nodes.jsonl \
-    --edges jsonl/ontology_edges.jsonl jsonl/source_edges.jsonl \
-    --outputNodes jsonl/nodes.jsonl \
-    --outputEdges jsonl/edges.jsonl
+```
+bash extract/unzip.sh
+```
 
-## Normalize Graph
+### 2. Source Parsing
 
-    python transform/filter_kg_and_remap_predicates.py \
-    yaml/predicate-remap.yaml \
-    yaml/kg2-provided-by-curie-to-infores-curie.yaml \
-    yaml/knowledge-level-agent-type-map.yaml \
-    yaml/edge-blocklist.yaml \
-    jsonl/nodes.jsonl \
-    jsonl/edges.jsonl \
-    jsonl/nodes-simplified.jsonl \
-    jsonl/edges-simplified.jsonl \
-    versions.md
+Each source is converted into:
 
-# Configuration Files
+* `nodes.jsonl`
+* `edges.jsonl`
 
-The configuration directory contains YAML files controlling graph
-conversion and normalization.
+### 3. Merge
 
-## curies-to-categories.yaml
+All sources are merged:
 
-Maps identifier prefixes to Biolink node categories.
+```
+python merge_graphs.py
+```
 
-## curies-to-urls-map.yaml
+Outputs:
 
-Defines how IRIs are converted to CURIE identifiers.
+* `all_nodes.jsonl`
+* `all_edges.jsonl`
 
-## predicate-remap.yaml
+### 4. Filtering
 
-Defines predicate normalization rules.
+Optional filtering (predicate cleanup, deduplication, etc.):
 
-## kg2-provided-by-curie-to-infores-curie.yaml
+```
+python filter_graph.py
+```
 
-Maps source identifiers to Translator `infores` identifiers.
+Outputs:
 
-## knowledge-level-agent-type-map.yaml
+* `nodes_filtered.jsonl`
+* `edges_filtered.jsonl`
 
-Defines knowledge-level metadata used in the Translator ecosystem.
+### 5. Statistics
 
-## edge-blocklist.yaml
+```
+python stats/stats.py
+```
 
-Defines edges that should be removed during normalization.
+---
 
-# Versioning
+## Design Notes
 
-The file
+* Uses Biolink-style categories and predicates
+* Emphasizes rare disease coverage via Orphanet + HPO
+* Maintains full provenance via `provided_by`
+* No isolated nodes (fully connected graph)
+* Heavy-tailed degree distribution typical of biological networks
+* All sources, except for Orphanet, were obtained from translater-ingest team, copied from the public s3 bucket called `translator-ingests`
 
-    versions.md
+---
 
-stores the graph build version identifier.
+## Use Cases
 
-This value is embedded into the graph metadata.
+* Rare disease molecular target discovery
+* Drug repurposing
+* Knowledge graph embeddings
+* RAG pipelines for biomedical LLMs
+* Clinical decision support systems
 
-# Notes
+---
 
--   JSON Lines is used to support streaming large graphs.
+## Requirements
 
--   The pipeline supports graphs with tens to hundreds of millions of
-    edges.
+Install dependencies:
 
--   Snakemake ensures reproducible builds.
+```
+pip install -r setup/requirements.txt
+```
 
-# Future Work
+---
 
-Planned additions include:
+## Notes
 
--   node canonicalization
+* Raw data is large and intended for HPC environments
+* Intermediate files may require significant disk space
+* Processing ~1M nodes / ~4M edges benefits from parallelization
 
--   identifier normalization
+---
 
--   equivalence resolution
+## License
 
--   graph statistics generation
+MIT 
 
--   export to Neo4j or Parquet
+---
+
+## Maintainer
+
+Frankie Hodges
+Oregon State University
