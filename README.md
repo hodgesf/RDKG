@@ -14,32 +14,26 @@ The pipeline is fully reproducible and designed for HPC environments. Raw data i
 
 * **OS**: Linux (tested on HPC DGX-h node)
 * **Python**: 3.11+
-* **Disk**: ~25–30 GB (end-to-end pipeline)
+* **Disk**: ~25 GB (end-to-end pipeline)
 * **RAM**: ~6 GB peak observed (5.46 GB max RSS)
 * **CPU**: 16+ cores recommended (pipeline parallelism limited but benefits from I/O concurrency)
+* * **Runtime**: ~10 minutes total
 
 ### Tested Environment - macOS
 
-The pipeline has been tested on:
-
 * **System**: Apple MacBook Pro with M5 chip
-* **CPU**: 14 cores (M5)
+* **CPU**: 10 cores
 * **RAM**: 32 GB unified memory
 * **Storage**: 1 TB SSD
-* **OS**: macOS
+* **OS**: macOS Tahoe 26.3.1
 * **Python**: 3.11+
 
 ### Tested Environment - HPC
 
-The pipeline has been tested on:
-
 * **System**: NVIDIA DGX-h node
 * **CPU**: 16 cores
 * **RAM**: 128 GB
-* **Storage**: HPC shared filesystem
-* **Runtime**: ~10 minutes total
-* **Peak Memory (RSS)**: ~5.46 GB
-* **Disk Usage (final)**: ~24 GB
+* **Storage**: 1 TB SSD 
 
 ### Prerequisites
 
