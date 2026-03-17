@@ -19,5 +19,7 @@ for file in "${files[@]}"; do
 
     outdir="$(dirname "$file")"
 
-    tar -I zstd -xvf "$file" -C "$outdir"
+    # Use zstdcat to decompress and pipe to tar
+    # This avoids issues with tar -I zstd not finding zstd in PATH
+    zstdcat "$file" | tar -xvf - -C "$outdir"
 done

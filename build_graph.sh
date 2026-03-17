@@ -44,6 +44,9 @@ VENV_DIR="$ROOT_DIR/venv"
 # ===============================
 # SETUP VENV (optional)
 # ===============================
+# Save original PATH before venv activation
+ORIGINAL_PATH="$PATH"
+
 if [ "$SETUP" = true ]; then
   if [ ! -d "$VENV_DIR" ]; then
     echo "Creating virtual environment..."
@@ -55,12 +58,21 @@ if [ "$SETUP" = true ]; then
     fi
   fi
 
-  echo "Activating virtual environment..."
-  source "$VENV_DIR/bin/activate"
-
   echo "Installing requirements..."
+  source "$VENV_DIR/bin/activate"
   pip install -r "$ROOT_DIR/setup/requirements.txt"
+else
+  # If not setting up, still activate the venv if it exists
+  if [ ! -d "$VENV_DIR" ]; then
+    echo "ERROR: Virtual environment not found at $VENV_DIR"
+    echo "Please run: ./build_graph.sh --setup"
+    exit 1
+  fi
+  source "$VENV_DIR/bin/activate"
 fi
+
+# Restore original PATH after venv activation to preserve system tools
+export PATH="$VENV_DIR/bin:$ORIGINAL_PATH"
 
 # ===============================
 # PIPELINE
@@ -68,13 +80,13 @@ fi
 echo "Starting build pipeline..."
 
 echo "1. Ingesting data..."
-bash "$ROOT_DIR/process/ingest_data.sh"
+source "$ROOT_DIR/process/ingest_data.sh"
 
 echo "2. Unzipping data..."
-bash "$ROOT_DIR/process/unzip.sh"
+source "$ROOT_DIR/process/unzip.sh"
 
 echo "2b. Ingesting Orphanet..."
-bash "$ROOT_DIR/process/ingest_orphanet.sh"
+source "$ROOT_DIR/process/ingest_orphanet.sh"
 
 echo "2c. Transforming Orphanet..."
 python "$ROOT_DIR/process/transform_orphanet.py"

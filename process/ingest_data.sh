@@ -31,6 +31,12 @@ for src in "${SOURCES[@]}"; do
   out_dir="${OUT_DIR}/${src}"
   out_file="${out_dir}/${src}.tar.zst"
 
+  # Check if directory already has files (skip if it does)
+  if [ -d "$out_dir" ] && [ "$(ls -A "$out_dir")" ]; then
+    echo "Skipping ${src} (already downloaded)"
+    continue
+  fi
+
   mkdir -p "$out_dir"
 
   echo "Downloading ${src}..."
