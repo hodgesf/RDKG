@@ -18,8 +18,18 @@ The pipeline is fully reproducible and designed for HPC environments. Raw data i
 * **RAM**: ~6 GB peak observed (5.46 GB max RSS)
 * **CPU**: 16+ cores recommended (pipeline parallelism limited but benefits from I/O concurrency)
 
+### Tested Environment - macOS
 
-### Tested Environment
+The pipeline has been tested on:
+
+* **System**: Apple MacBook Pro with M5 chip
+* **CPU**: 14 cores (M5)
+* **RAM**: 32 GB unified memory
+* **Storage**: 1 TB SSD
+* **OS**: macOS
+* **Python**: 3.11+
+
+### Tested Environment - HPC
 
 The pipeline has been tested on:
 
@@ -30,6 +40,15 @@ The pipeline has been tested on:
 * **Runtime**: ~10 minutes total
 * **Peak Memory (RSS)**: ~5.46 GB
 * **Disk Usage (final)**: ~24 GB
+
+### Prerequisites
+
+Before running the pipeline, you must install:
+
+* **zstd** - Required for decompressing `.tar.zst` archives
+  * **macOS**: `brew install zstd`
+  * **Linux**: `apt-get install zstd` (Ubuntu/Debian) or `yum install zstd` (CentOS/RHEL)
+  * **HPC**: Usually available in module system: `module load zstd` (check with `module avail`)
 
 ### S3 Access
 
