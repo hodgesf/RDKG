@@ -48,14 +48,7 @@ owl_files/*
 # Graph Data (IMPORTANT)
 # ===============================
 
-# ignore top-level generated graph files
-files/*.jsonl
-
-# ignore per-source node/edge files
-files/*/*.jsonl
-
-# (optional) ignore nested data dir if used
-files/data/*/*.jsonl
+files/
 
 # ===============================
 # Generated Graph Outputs
