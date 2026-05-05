@@ -2,6 +2,11 @@
 
 import json
 from collections import Counter
+from pathlib import Path
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+ROOT_DIR = SCRIPT_DIR.parent
+FILES_DIR = ROOT_DIR / "files"
 
 
 def compute_stats(nodes_file, edges_file, out_file):
@@ -90,7 +95,15 @@ def compute_stats(nodes_file, edges_file, out_file):
 
 
 # --- RUN BOTH ---
-compute_stats("files/all_nodes.jsonl", "files/all_edges.jsonl", "stats_all.txt")
-compute_stats("files/nodes_filtered.jsonl", "files/edges_filtered.jsonl", "stats_filtered.txt")
+compute_stats(
+    FILES_DIR / "all_nodes.jsonl",
+    FILES_DIR / "all_edges.jsonl",
+    SCRIPT_DIR / "stats_all.txt",
+)
+compute_stats(
+    FILES_DIR / "nodes_filtered.jsonl",
+    FILES_DIR / "edges_filtered.jsonl",
+    SCRIPT_DIR / "stats_filtered.txt",
+)
 
-print("Done: stats_all.txt and stats_filtered.txt")
+print(f"Done: {SCRIPT_DIR / 'stats_all.txt'} and {SCRIPT_DIR / 'stats_filtered.txt'}")
